@@ -1,0 +1,112 @@
+{
+  "depends": [
+    {
+      "method": "fetchzip",
+      "path": "/nix/store/yr8fsc359hr8gcraf03z6z2g03kyixfa-source",
+      "rev": "b7a25c62e63b459b9bfbef1de05199e4837c67d0",
+      "sha256": "0vh03jly6ynj3bbnqk190602n53r49x6plpdww4b8bd6ilkjwdzn",
+      "url": "https://github.com/enthus1ast/nimja/archive/b7a25c62e63b459b9bfbef1de05199e4837c67d0.tar.gz",
+      "ref": "0.10.1",
+      "packages": [
+        "nimja"
+      ],
+      "srcDir": "src"
+    },
+    {
+      "method": "fetchzip",
+      "path": "/nix/store/96ss8xx5cdr32fb561kzrcgfrw88qzg6-source",
+      "rev": "77a7563e87a1045e4e407a3a68731e299fa3507e",
+      "sha256": "0hwschl6pc5h5r3pz6v7x0dnrw19k6nm339hizgrvcxfvrcz8lv3",
+      "url": "https://github.com/guzba/mummy/archive/77a7563e87a1045e4e407a3a68731e299fa3507e.tar.gz",
+      "ref": "0.4.8",
+      "packages": [
+        "mummy"
+      ],
+      "srcDir": "src"
+    },
+    {
+      "method": "fetchzip",
+      "path": "/nix/store/a9sxx76626bznfd8cwplpbawb3fq881x-source",
+      "rev": "bd6bb8879a5b5a24d1f21095e5c10fdfd2211f5d",
+      "sha256": "0lq25kbp8hskbvrj1yhrfxn88i6qkgxs9avdhkp00cfqmzyjh7v7",
+      "url": "https://github.com/treeform/debby/archive/bd6bb8879a5b5a24d1f21095e5c10fdfd2211f5d.tar.gz",
+      "ref": "0.6.2",
+      "packages": [
+        "debby"
+      ],
+      "srcDir": "src"
+    },
+    {
+      "method": "fetchzip",
+      "path": "/nix/store/y7jw44rcmvhwbwd02qh6d6mnrg4xk00v-source",
+      "rev": "bcb8c1e1be6abb0a0e35a3c6040cdd9391cc993f",
+      "sha256": "0vk10ap93jqrmzxjjnwm1w45x7fvbihxjqc92nb1ic2y9x33i5v3",
+      "url": "https://github.com/guzba/zippy/archive/bcb8c1e1be6abb0a0e35a3c6040cdd9391cc993f.tar.gz",
+      "ref": "0.10.19",
+      "packages": [
+        "zippy"
+      ],
+      "srcDir": "src"
+    },
+    {
+      "method": "fetchzip",
+      "path": "/nix/store/gff6iqfgwq562vc10ws0ss3d8wbksfyl-source",
+      "rev": "881f3ae8ced4ff764cbdd207fc59f77f2b5ee748",
+      "sha256": "1p2i9brhv3v6mzh4vw1806jscni06sbvglfsxcxi97qn79fp0nqh",
+      "url": "https://github.com/FedericoCeratto/nim-libsodium/archive/881f3ae8ced4ff764cbdd207fc59f77f2b5ee748.tar.gz",
+      "ref": "0.7.2",
+      "packages": [
+        "libsodium"
+      ],
+      "srcDir": ""
+    },
+    {
+      "method": "fetchzip",
+      "path": "/nix/store/4q986rlniaxascxkvx4q8rsx12frjd51-source",
+      "rev": "325d6ade0970562bee7d7d53961a2c3287f0c4bc",
+      "sha256": "0qa8hzvamsdszygra3lcc92zk6rzm3gh1mzgjq9khbanzbg3y67n",
+      "url": "https://github.com/treeform/webby/archive/325d6ade0970562bee7d7d53961a2c3287f0c4bc.tar.gz",
+      "ref": "0.2.1",
+      "packages": [
+        "webby"
+      ],
+      "srcDir": "src"
+    },
+    {
+      "method": "fetchzip",
+      "path": "/nix/store/rb4r4bz7bm573vyvlm5mkji3f9cs2ya9-source",
+      "rev": "98eb6526982bb8aae8eec6e8781f4539fa19e049",
+      "sha256": "11iz2d23g3dwpw2ybx951c8ccikziaphr3515vw9c9930r5xmkci",
+      "url": "https://github.com/guzba/crunchy/archive/98eb6526982bb8aae8eec6e8781f4539fa19e049.tar.gz",
+      "ref": "0.1.11",
+      "packages": [
+        "crunchy"
+      ],
+      "srcDir": "src"
+    },
+    {
+      "method": "fetchzip",
+      "path": "/nix/store/p34ky5dizbgjilm7g4yfqggz45pdgf2n-source",
+      "rev": "bb647e1ca21af25ffdc423bcb96feeeeae963ca2",
+      "sha256": "0f7mp9hf673y14dj84ysdw5xbciqkwx0mn9c12zn105mcmn1f8mm",
+      "url": "https://github.com/treeform/jsony/archive/bb647e1ca21af25ffdc423bcb96feeeeae963ca2.tar.gz",
+      "ref": "1.1.6",
+      "packages": [
+        "jsony"
+      ],
+      "srcDir": "src"
+    },
+    {
+      "method": "fetchzip",
+      "path": "/nix/store/bgbr0dgda0lhm0lbg2cljjh34wnw36zp-source",
+      "rev": "3f6b2668ffb0867d0bf786a658b817763e611350",
+      "sha256": "0frxqj34a12xwniac2nhlzdipc8w02m138k8gk6zf4s8yg5yvvhl",
+      "url": "https://github.com/guzba/nimsimd/archive/3f6b2668ffb0867d0bf786a658b817763e611350.tar.gz",
+      "ref": "1.3.2",
+      "packages": [
+        "nimsimd"
+      ],
+      "srcDir": "src"
+    }
+  ]
+}

@@ -6,39 +6,41 @@ type
     id*: int
     title*: string
     author*: string
-    originalFilename*: string
-    storedFilename*: string
-    sizeBytes*: int
-    uploadedBy*: string
-    uploadedAt*: string
+    original_filename*: string
+    stored_filename*: string
+    size_bytes*: int
+    uploaded_by*: string
+    uploaded_at*: string
 
-var pool* = newPool[SQLiteConnection](10, "library.db")
+var pool*: Pool
 
-proc initDb*() {.gcsafe.} =
-  pool.withDb:
-    db.createTableIfNotExists(Book)
+proc init_db*() =
+  pool = new_pool()
+  for i in 0 ..< 10:
+    pool.add sqlite.open_database("library.db")
+  pool.with_db:
+    if not db.table_exists(Book):
+      db.create_table(Book)
 
-proc insertBook*(book: var Book) {.gcsafe.} =
-  pool.withDb:
+proc insert_book*(book: var Book) {.gcsafe.} =
+  pool.with_db:
     db.insert(book)
 
-proc listBooks*(): seq[Book] {.gcsafe.} =
+proc list_books*(): seq[Book] {.gcsafe.} =
   result = pool.filter(Book)
 
-proc getBook*(id: int): Book {.gcsafe.} =
-  pool.withDb:
-    result = Book(id: id)
-    db.get(result)
+proc get_book*(id: int): Book {.gcsafe.} =
+  result = pool.get(Book, id)
 
-proc deleteBook*(id: int) {.gcsafe.} =
-  pool.withDb:
+proc delete_book*(id: int) {.gcsafe.} =
+  pool.with_db:
     var book = Book(id: id)
     db.delete(book)
 
-proc searchBooks*(query: string): seq[Book] {.gcsafe.} =
+proc search_books*(query: string): seq[Book] {.gcsafe.} =
   let pattern = "%" & query & "%"
-  pool.withDb:
-    result = db.rawQuery(
+  pool.with_db:
+    result = db.query(
       Book,
       "SELECT * FROM book WHERE title LIKE ? OR author LIKE ?",
       pattern, pattern

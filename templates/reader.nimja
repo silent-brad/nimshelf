@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{title}} - NimShelf Reader</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    #reader-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.5rem 1rem; border-bottom: 1px solid var(--pico-muted-border-color);
+      background: var(--pico-background-color);
+      position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+      height: 48px; box-sizing: border-box;
+    }
+    #reader-nav strong { font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #reader-nav a, #reader-nav button { font-size: 0.85rem; margin: 0; padding: 0.25rem 0.6rem; }
+    #viewer { position: fixed; top: 48px; bottom: 0; left: 0; right: 0; }
+    #prev, #next {
+      position: fixed; top: 48px; bottom: 0; width: 60px; z-index: 5;
+      background: transparent; border: none; cursor: pointer;
+      font-size: 2rem; color: var(--pico-muted-color); opacity: 0.4;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #prev:hover, #next:hover { opacity: 0.8; }
+    #prev { left: 0; }
+    #next { right: 0; }
+    #toc-panel {
+      position: fixed; top: 48px; left: 0; bottom: 0; width: 280px;
+      background: var(--pico-background-color); border-right: 1px solid var(--pico-muted-border-color);
+      z-index: 8; overflow-y: auto; padding: 1rem; display: none;
+    }
+    #toc-panel.open { display: block; }
+    #toc-panel ul { list-style: none; padding: 0; margin: 0; }
+    #toc-panel li { padding: 0.4rem 0; }
+    #toc-panel a { text-decoration: none; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div id="reader-nav">
+    <div style="display:flex;align-items:center;gap:0.5rem;overflow:hidden;">
+      <a href="/">← Library</a>
+      <button id="toc-btn" class="outline small" onclick="toggleToc()">☰</button>
+      <strong>{{title}}</strong>
+    </div>
+    <div style="display:flex;gap:0.5rem;align-items:center;">
+      <button id="font-dec" class="outline small" onclick="changeFont(-2)">A−</button>
+      <button id="font-inc" class="outline small" onclick="changeFont(2)">A+</button>
+    </div>
+  </div>
+  <div id="toc-panel"></div>
+  <button id="prev">‹</button>
+  <div id="viewer"></div>
+  <button id="next">›</button>
+  <script>
+    var rendition;
+    var fontSize = 100;
+
+    // Fetch EPUB as ArrayBuffer to avoid compression/encoding issues
+    fetch("/books/{{bookId}}/download")
+      .then(function(res) { return res.arrayBuffer(); })
+      .then(function(buf) {
+        var book = ePub(buf);
+        rendition = book.renderTo("viewer", {
+          width: "100%",
+          height: "100%",
+          spread: "none",
+          flow: "paginated"
+        });
+        rendition.display();
+
+        rendition.on("rendered", applyTheme);
+
+        // Keyboard navigation inside epub iframe
+        rendition.on("keydown", function(e) {
+          if (e.key === "ArrowLeft") rendition.prev();
+          if (e.key === "ArrowRight") rendition.next();
+        });
+
+        // Table of contents
+        book.loaded.navigation.then(function(nav) {
+          var ul = document.createElement("ul");
+          nav.toc.forEach(function(ch) {
+            var li = document.createElement("li");
+            var a = document.createElement("a");
+            a.textContent = ch.label.trim();
+            a.href = "#";
+            a.onclick = function(e) {
+              e.preventDefault();
+              rendition.display(ch.href);
+              document.getElementById("toc-panel").classList.remove("open");
+            };
+            li.appendChild(a);
+            ul.appendChild(li);
+          });
+          document.getElementById("toc-panel").appendChild(ul);
+        });
+      })
+      .catch(function(err) {
+        document.getElementById("viewer").innerHTML =
+          '<p style="padding:2rem;color:var(--pico-del-color);">Failed to load book: ' + err.message + '</p>';
+      });
+
+    function changeFont(delta) {
+      fontSize += delta;
+      if (rendition) rendition.themes.fontSize(fontSize + "%");
+    }
+
+    function applyTheme() {
+      if (!rendition) return;
+      var isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (isDark) {
+        rendition.themes.override("color", "#c5c8c6");
+        rendition.themes.override("background", "#1a1a2e");
+      } else {
+        rendition.themes.override("color", "#1a1a2e");
+        rendition.themes.override("background", "#ffffff");
+      }
+    }
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyTheme);
+
+    // Keyboard navigation on main document
+    document.addEventListener("keydown", function(e) {
+      if (!rendition) return;
+      if (e.key === "ArrowLeft") rendition.prev();
+      if (e.key === "ArrowRight") rendition.next();
+    });
+
+    function toggleToc() {
+      document.getElementById("toc-panel").classList.toggle("open");
+    }
+
+    document.getElementById("prev").onclick = function() { if (rendition) rendition.prev(); };
+    document.getElementById("next").onclick = function() { if (rendition) rendition.next(); };
+  </script>
+</body>
+</html>

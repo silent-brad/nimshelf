@@ -36,7 +36,8 @@
       <small>{% if book.author.len > 0 %}{{book.author}} · {% endif %}{{book.originalFilename}}</small>
       <br><small>Uploaded by {{book.uploadedBy}}</small>
       <footer>
-        <a href="/books/{{book.id}}/download" role="button" class="outline small">Download</a>
+        <a href="/books/{{book.id}}/read" role="button" class="small">Read</a>
+        <a href="/books/{{book.id}}/download?dl=1" role="button" class="outline small">Download</a>
         <button hx-delete="/books/{{book.id}}" hx-target="#book-list" hx-swap="innerHTML" hx-confirm="Delete this book?" class="outline secondary small">Delete</button>
       </footer>
     </article>
