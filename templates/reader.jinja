@@ -18,7 +18,9 @@
     }
     #reader-nav strong { font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     #reader-nav a, #reader-nav button { font-size: 0.85rem; margin: 0; padding: 0.25rem 0.6rem; }
-    #viewer { position: fixed; top: 48px; bottom: 0; left: 0; right: 0; }
+    #progress-bar { position: fixed; top: 48px; left: 0; right: 0; height: 3px; z-index: 9; background: var(--pico-muted-border-color); }
+    #progress-fill { height: 100%; width: 0%; background: var(--pico-primary); transition: width 0.3s; }
+    #viewer { position: fixed; top: 51px; bottom: 0; left: 0; right: 0; }
     #prev, #next {
       position: fixed; top: 48px; bottom: 0; width: 60px; z-index: 5;
       background: transparent; border: none; cursor: pointer;
@@ -47,10 +49,13 @@
       <strong>{{title}}</strong>
     </div>
     <div style="display:flex;gap:0.5rem;align-items:center;">
+      <small id="section-label" style="color:var(--pico-muted-color);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></small>
+      <small id="progress-label" style="color:var(--pico-muted-color);"></small>
       <button id="font-dec" class="outline small" onclick="changeFont(-2)">A−</button>
       <button id="font-inc" class="outline small" onclick="changeFont(2)">A+</button>
     </div>
   </div>
+  <div id="progress-bar"><div id="progress-fill"></div></div>
   <div id="toc-panel"></div>
   <button id="prev">‹</button>
   <div id="viewer"></div>
@@ -70,7 +75,39 @@
           spread: "none",
           flow: "paginated"
         });
-        rendition.display();
+        var savedCfi = "{{savedCfi}}";
+        if (savedCfi) {
+          rendition.display(savedCfi);
+        } else {
+          rendition.display();
+        }
+
+        rendition.on("relocated", function(location) {
+          var cfi = location.start.cfi;
+          var pct = Math.round((location.start.percentage || 0) * 100);
+          document.getElementById("progress-fill").style.width = pct + "%";
+          document.getElementById("progress-label").textContent = pct + "%";
+
+          // Find current section name
+          var sectionName = "";
+          if (book.navigation) {
+            book.navigation.toc.forEach(function(ch) {
+              if (book.spine.get(location.start.index) &&
+                  ch.href.split("#")[0] === book.spine.get(location.start.index).href) {
+                sectionName = ch.label.trim();
+              }
+            });
+          }
+          document.getElementById("section-label").textContent = sectionName;
+
+          if (cfi) {
+            fetch("/books/{{bookId}}/bookmark", {
+              method: "PUT",
+              headers: {"Content-Type": "application/json"},
+              body: JSON.stringify({cfi: cfi, progress: pct, section: sectionName})
+            });
+          }
+        });
 
         rendition.on("rendered", applyTheme);
 

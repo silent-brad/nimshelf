@@ -35,8 +35,17 @@
       <h4>{{book.title}}</h4>
       <small>{% if book.author.len > 0 %}{{book.author}} · {% endif %}{{book.originalFilename}}</small>
       <br><small>Uploaded by {{book.uploadedBy}}</small>
+      {% if bookmarks.hasKey(book.id) %}
+      <div style="margin-top:0.5rem;">
+        <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--pico-muted-color);margin-bottom:0.2rem;">
+          <span>{% if bookmarks[book.id].section.len > 0 %}{{bookmarks[book.id].section}}{% else %}Reading{% endif %}</span>
+          <span>{{bookmarks[book.id].progress}}%</span>
+        </div>
+        <progress value="{{bookmarks[book.id].progress}}" max="100" style="height:6px;"></progress>
+      </div>
+      {% endif %}
       <footer>
-        <a href="/books/{{book.id}}/read" role="button" class="small">Read</a>
+        <a href="/books/{{book.id}}/read" role="button" class="small">{% if bookmarks.hasKey(book.id) %}Continue{% else %}Read{% endif %}</a>
         <a href="/books/{{book.id}}/download?dl=1" role="button" class="outline small">Download</a>
         <button hx-delete="/books/{{book.id}}" hx-target="#book-list" hx-swap="innerHTML" hx-confirm="Delete this book?" class="outline secondary small">Delete</button>
       </footer>

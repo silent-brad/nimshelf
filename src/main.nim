@@ -1,22 +1,22 @@
 import mummy, mummy/routers, mummy/multipart
 import nimja/parser
-import std/[os, strutils, times, options, uri]
+import std/[os, strutils, times, options, uri, tables, json]
 import db
 import auth
 
 # --- Template Renderers ---
 
 proc render_login(error: string): string =
-  compile_template_file("templates/login.nimja", base_dir = get_script_dir() / "..")
+  compile_template_file("templates/login.jinja", base_dir = get_script_dir() / "..")
 
-proc render_index(username: string, books: seq[Book]): string =
-  compile_template_file("templates/index.nimja", base_dir = get_script_dir() / "..")
+proc render_index(username: string, books: seq[Book], bookmarks: Table[int, Bookmark]): string =
+  compile_template_file("templates/index.jinja", base_dir = get_script_dir() / "..")
 
-proc render_book_list(books: seq[Book]): string =
-  compile_template_file("templates/booklist.nimja", base_dir = get_script_dir() / "..")
+proc render_book_list(books: seq[Book], bookmarks: Table[int, Bookmark]): string =
+  compile_template_file("templates/booklist.jinja", base_dir = get_script_dir() / "..")
 
-proc render_reader(title: string, bookId: int): string =
-  compile_template_file("templates/reader.nimja", base_dir = get_script_dir() / "..")
+proc render_reader(title: string, book_id: int, saved_cfi: string): string =
+  compile_template_file("templates/reader.jinja", base_dir = get_script_dir() / "..")
 
 # --- Helpers ---
 
@@ -49,6 +49,10 @@ proc get_form_field(fields: seq[(string, string)], name: string): string =
   for (k, v) in fields:
     if k == name: return v
 
+proc get_user_bookmarks(username: string): Table[int, Bookmark] =
+  for bm in get_bookmarks_for_user(username):
+    result[bm.book_id] = bm
+
 # --- Route Handlers ---
 
 proc index_handler(request: Request) =
@@ -57,7 +61,8 @@ proc index_handler(request: Request) =
     request.redirect("/login")
     return
   let books = list_books()
-  request.html_resp(200, render_index(username, books))
+  let bookmarks = get_user_bookmarks(username)
+  request.html_resp(200, render_index(username, books, bookmarks))
 
 proc login_page_handler(request: Request) =
   if is_logged_in(request.get_cookie):
@@ -129,7 +134,8 @@ proc upload_handler(request: Request) =
   insert_book(book)
 
   let books = list_books()
-  request.html_resp(200, render_book_list(books))
+  let bookmarks = get_user_bookmarks(username)
+  request.html_resp(200, render_book_list(books, bookmarks))
 
 proc search_handler(request: Request) =
   let username = get_username(request.get_cookie)
@@ -139,7 +145,8 @@ proc search_handler(request: Request) =
 
   let q = request.query_params["q"]
   let books = if q.len > 0: search_books(q) else: list_books()
-  request.html_resp(200, render_book_list(books))
+  let bookmarks = get_user_bookmarks(username)
+  request.html_resp(200, render_book_list(books, bookmarks))
 
 proc download_handler(request: Request) =
   let username = get_username(request.get_cookie)
@@ -190,7 +197,32 @@ proc read_handler(request: Request) =
     request.respond(404)
     return
 
-  request.html_resp(200, render_reader(book.title, book.id))
+  let bm = get_bookmark(username, book.id)
+  let saved_cfi = if bm != nil: bm.cfi else: ""
+  request.html_resp(200, render_reader(book.title, book.id, saved_cfi))
+
+proc save_bookmark_handler(request: Request) =
+  let username = get_username(request.get_cookie)
+  if username.len == 0:
+    request.respond(401)
+    return
+  let id = try: parse_int(request.path_params["id"])
+           except: 0
+  if id == 0:
+    request.respond(400)
+    return
+  try:
+    let j = parse_json(request.body)
+    let cfi = j{"cfi"}.get_str()
+    let progress = j{"progress"}.get_int()
+    let section = j{"section"}.get_str()
+    if cfi.len == 0:
+      request.respond(400)
+      return
+    save_bookmark(username, id, cfi, progress, section)
+    request.respond(204)
+  except:
+    request.respond(400)
 
 proc delete_handler(request: Request) =
   let username = get_username(request.get_cookie)
@@ -213,7 +245,8 @@ proc delete_handler(request: Request) =
     delete_book(id)
 
   let books = list_books()
-  request.html_resp(200, render_book_list(books))
+  let bookmarks = get_user_bookmarks(username)
+  request.html_resp(200, render_book_list(books, bookmarks))
 
 # --- Server Setup ---
 
@@ -238,6 +271,7 @@ proc main() =
   router.post("/books", upload_handler)
   router.get("/books/search", search_handler)
   router.get("/books/@id/read", read_handler)
+  router.put("/books/@id/bookmark", save_bookmark_handler)
   router.get("/books/@id/download", download_handler)
   router.delete("/books/@id", delete_handler)
 
