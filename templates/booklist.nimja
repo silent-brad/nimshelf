@@ -1,0 +1,17 @@
+{% if books.len == 0 %}
+<p>No books yet. Upload one above!</p>
+{% else %}
+<div class="book-grid">
+  {% for book in books %}
+  <article class="book-card">
+    <h4>{{book.title}}</h4>
+    <small>{% if book.author.len > 0 %}{{book.author}} · {% endif %}{{book.originalFilename}}</small>
+    <br><small>Uploaded by {{book.uploadedBy}}</small>
+    <footer>
+      <a href="/books/{{book.id}}/download" role="button" class="outline small">Download</a>
+      <button hx-delete="/books/{{book.id}}" hx-target="#book-list" hx-swap="innerHTML" hx-confirm="Delete this book?" class="outline secondary small">Delete</button>
+    </footer>
+  </article>
+  {% endfor %}
+</div>
+{% endif %}

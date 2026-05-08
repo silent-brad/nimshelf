@@ -1,0 +1,48 @@
+{% extends "templates/base.nimja" %}
+{% block title %}NimShelf{% endblock %}
+{% block nav %}
+<span>
+  {{username}} · <a href="/logout">Logout</a>
+</span>
+{% endblock %}
+{% block content %}
+<details>
+  <summary role="button" class="outline">Upload Book</summary>
+  <form hx-post="/books" hx-target="#book-list" hx-swap="innerHTML" hx-encoding="multipart/form-data" hx-on::after-request="if(event.detail.successful) this.reset()">
+    <div class="grid">
+      <label>Title <input type="text" name="title" required></label>
+      <label>Author <input type="text" name="author"></label>
+    </div>
+    <label>EPUB File <input type="file" name="file" accept=".epub,application/epub+zip" required></label>
+    <button type="submit">Upload</button>
+  </form>
+</details>
+
+<h2>Library</h2>
+<div>
+  <input type="search" name="q" placeholder="Search books..."
+    hx-get="/books/search" hx-target="#book-list" hx-swap="innerHTML"
+    hx-trigger="input changed delay:300ms, search">
+</div>
+{% block bookList %}
+<div id="book-list">
+  {% if books.len == 0 %}
+  <p>No books yet. Upload one above!</p>
+  {% else %}
+  <div class="book-grid">
+    {% for book in books %}
+    <article class="book-card">
+      <h4>{{book.title}}</h4>
+      <small>{% if book.author.len > 0 %}{{book.author}} · {% endif %}{{book.originalFilename}}</small>
+      <br><small>Uploaded by {{book.uploadedBy}}</small>
+      <footer>
+        <a href="/books/{{book.id}}/download" role="button" class="outline small">Download</a>
+        <button hx-delete="/books/{{book.id}}" hx-target="#book-list" hx-swap="innerHTML" hx-confirm="Delete this book?" class="outline secondary small">Delete</button>
+      </footer>
+    </article>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+{% endblock %}

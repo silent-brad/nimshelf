@@ -1,0 +1,17 @@
+{% extends "templates/base.nimja" %}
+{% block title %}Login - NimShelf{% endblock %}
+{% block content %}
+<article style="max-width: 400px; margin: 2rem auto;">
+  <h2>Login</h2>
+  {% if error.len > 0 %}
+  <div class="flash error">{{error}}</div>
+  {% endif %}
+  <form method="post" action="/login">
+    <label for="username">Username</label>
+    <input type="text" id="username" name="username" required autofocus>
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required>
+    <button type="submit">Login</button>
+  </form>
+</article>
+{% endblock %}

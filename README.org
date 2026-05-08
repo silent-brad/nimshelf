@@ -1,0 +1,5 @@
+#+TITLE: Nimshelf
+#+DESCRIPTION: A Simple Self-hosted Digital Library in Nim
+#+AUTHOR: Brad White
+#+DATE: 2026-05-07
+

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}NimShelf{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  <style>
+    .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+    .book-card { border: 1px solid var(--pico-muted-border-color); border-radius: var(--pico-border-radius); padding: 1rem; }
+    .book-card h4 { margin-bottom: 0.25rem; }
+    .book-card small { color: var(--pico-muted-color); }
+    nav { display: flex; justify-content: space-between; align-items: center; }
+    .flash { padding: 0.75rem; border-radius: var(--pico-border-radius); margin-bottom: 1rem; background: var(--pico-primary-background); color: var(--pico-primary-inverse); }
+    .flash.error { background: var(--pico-del-color); }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <nav>
+      <strong><a href="/">📚 NimShelf</a></strong>
+      {% block nav %}{% endblock %}
+    </nav>
+    <hr>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
